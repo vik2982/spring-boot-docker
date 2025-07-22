@@ -5,6 +5,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,8 +25,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
+// @RequestMapping("/footballApi")
 public class FootballTeamController {
 
   private static final Logger logger = LoggerFactory.getLogger(FootballTeamController.class);
@@ -35,9 +39,8 @@ public class FootballTeamController {
   FootballTeamRepository footballTeamRepository;
 
   @GetMapping
-  public List<FootballTeam> allTeams() {
-
-    return footballTeamRepository.findAll();
+  public ResponseEntity<List<FootballTeam>> allTeams() {
+    return new ResponseEntity<List<FootballTeam>>(footballTeamRepository.findAll(), HttpStatus.OK);
   }
 
   @Operation(summary = "Get a team by its name")
@@ -49,26 +52,33 @@ public class FootballTeamController {
           content = {@Content(mediaType = "application/json",
               schema = @Schema(implementation = ErrorResponse.class))})})
   @GetMapping("/{team}")
-  public FootballTeam getTeam(@PathVariable("team") String team)
+  public ResponseEntity<FootballTeam> getTeam(@PathVariable("team") String team)
       throws FootballTeamNotFoundException {
 
     FootballTeam returnTeam = footballTeamRepository.findByName(team);
 
     if (returnTeam != null) {
-      return returnTeam;
+      return new ResponseEntity<FootballTeam>(returnTeam, HttpStatus.OK);
     }
+
     logger.error("Team not found for provided path variable");
     throw new FootballTeamNotFoundException("No Team found");
+
+    // throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Team Not Found",
+    // new Exception("some random ex"));
+
   }
 
   @GetMapping("/capacity")
-  public List<FootballTeam> sortByCapacity(@RequestParam("sort") String sort)
+  public ResponseEntity<List<FootballTeam>> sortByCapacity(@RequestParam("sort") String sort)
       throws FootballTeamException {
 
     if (sort.equals(ASC)) {
-      return footballTeamRepository.findByOrderByStadiumCapacityAsc();
+      return new ResponseEntity<List<FootballTeam>>(
+          footballTeamRepository.findByOrderByStadiumCapacityAsc(), HttpStatus.OK);
     } else if (sort.equals(DESC)) {
-      return footballTeamRepository.findByOrderByStadiumCapacityDesc();
+      return new ResponseEntity<List<FootballTeam>>(
+          footballTeamRepository.findByOrderByStadiumCapacityDesc(), HttpStatus.OK);
     }
 
     logger.error("Invalid query param");
@@ -76,7 +86,7 @@ public class FootballTeamController {
   }
 
   @PostMapping("/create")
-  public List<FootballTeam> createTeam(@RequestBody FootballTeam team)
+  public ResponseEntity<List<FootballTeam>> createTeam(@RequestBody FootballTeam team)
       throws FootballTeamException {
 
     List<FootballTeam> footballTeams = footballTeamRepository.findAll();
@@ -87,7 +97,9 @@ public class FootballTeamController {
 
     footballTeamRepository.save(team);
     footballTeamRepository.flush();
-    return footballTeamRepository.findAll();
+
+    return new ResponseEntity<List<FootballTeam>>(footballTeamRepository.findAll(), HttpStatus.OK);
+    // return ResponseEntity.ok(footballTeamRepository.findAll());
   }
 
 }

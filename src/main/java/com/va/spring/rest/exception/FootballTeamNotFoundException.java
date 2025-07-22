@@ -1,5 +1,6 @@
 package com.va.spring.rest.exception;
 
+// @ResponseStatus(value = HttpStatus.NOT_FOUND)
 public class FootballTeamNotFoundException extends Exception {
 
   private String errorMessage;

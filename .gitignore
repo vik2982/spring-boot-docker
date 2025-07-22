@@ -5,3 +5,9 @@
 .settings/
 src/.DS_Store
 src/test/.DS_Store
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr

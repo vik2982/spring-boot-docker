@@ -11,3 +11,7 @@ logging:
   level:
     root: DEBUG
     com.va.spring.rest: DEBUG
+
+springdoc:
+  api-docs:
+    version: "openapi_3_0"
