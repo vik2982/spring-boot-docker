@@ -98,7 +98,7 @@ public class FootballTeamController {
     footballTeamRepository.save(team);
     footballTeamRepository.flush();
 
-    return new ResponseEntity<List<FootballTeam>>(footballTeamRepository.findAll(), HttpStatus.OK);
+    return new ResponseEntity<List<FootballTeam>>(footballTeamRepository.findAll(), HttpStatus.CREATED);
     // return ResponseEntity.ok(footballTeamRepository.findAll());
   }
 
